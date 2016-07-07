@@ -1,0 +1,5 @@
+C:\OneDrive\DEV\margin trading\Forex - Copy\FXTrade\FXTrade.MarginService.BLL\bin\Debug\FXTrade.MarginService.BLL.dll
+C:\OneDrive\DEV\margin trading\Forex - Copy\FXTrade\FXTrade.MarginService.BLL\bin\Debug\FXTrade.MarginService.BLL.pdb
+C:\OneDrive\DEV\margin trading\Forex - Copy\FXTrade\FXTrade.MarginService.BLL\obj\Debug\FXTrade.MarginService.BLL.csprojResolveAssemblyReference.cache
+C:\OneDrive\DEV\margin trading\Forex - Copy\FXTrade\FXTrade.MarginService.BLL\obj\Debug\FXTrade.MarginService.BLL.dll
+C:\OneDrive\DEV\margin trading\Forex - Copy\FXTrade\FXTrade.MarginService.BLL\obj\Debug\FXTrade.MarginService.BLL.pdb
