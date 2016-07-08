@@ -2,6 +2,7 @@
 
 DynamicData-example is my first attempt to work with [DynamicData](https://github.com/RolandPheasant/DynamicData). 
 Intention of this example is to create real time trading limit management back-end for margin trading with use of DynamiData.
+
 Example is Calculating:
 - P&L of the trades
 - Agreegated P&L of the customer
