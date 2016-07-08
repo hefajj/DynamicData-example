@@ -50,12 +50,15 @@ namespace FXTrade.MarginService.ServiceCore.Services
         {
             cleanUp?.Dispose();
         }
-        public void AppendLog(string txt)
+        public void LogInfo(string txt)
         {
-
             logger.Info(txt + "\r");
         }
 
+        public void LogError(string txt)
+        {
+            logger.Info(txt + "\r");
+        }
 
         #region HelperMethods
         protected void AddMyTrade(Trade mynewtrade)

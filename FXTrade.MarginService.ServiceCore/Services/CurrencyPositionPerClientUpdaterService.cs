@@ -6,6 +6,7 @@ using System.Web;
 using DynamicData;
 
 using System.Reactive.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
 
@@ -42,8 +43,9 @@ namespace FXTrade.MarginService.ServiceCore.Services
                             double latestAskPrice = 0;
 
                             //subscribe to price and recalculate CurPositionPerClient in account currenty
-                            var priceHasChanged = quotes.Connect(q => q.Cur2 == groupedData.Key)
-                                        .Synchronize(clientBalancesLocker)
+                            //var priceHasChanged = quotes.Connect(q => q.Cur2 == groupedData.Key)
+                            var priceHasChanged = quotes.Connect(q => (q.Pair == "EUR/" + groupedData.Key))
+                                       .Synchronize(clientBalancesLocker)
                                         //.Throttle(TimeSpan.FromMilliseconds(250))
                                         .Subscribe(
                                         price =>
@@ -52,11 +54,17 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                             {
                                                 latestAskPrice = newquote.Current.Ask;
 
-                                                //foreach (var item in groupedData.Cache.Items)
-                                                //{
-                                                //    item.AmountInBase = item.Amount * latestAskPrice;
-                                                //    AddOrUpdate_curPositionPerClient(item);
-                                                //}
+                                                foreach (var item in groupedData.Cache.Items)
+                                                {
+                                                    LogInfo("SetAmountInBase before:|" + item);
+                                                    //TODO: Update Amount in Base position someplace else to not update main ISourceList
+
+                                                    //item.SetAmountInBase(latestAskPrice);
+                                                    LogInfo("SetAmountInBase after:|" + item);
+
+                                                    //item.AmountInBase = item.Amount * latestAskPrice;
+                                                    //AddOrUpdate_curPositionPerClient(item);
+                                                }
 
                                                 //curPositionPerClient.Edit(updater =>
                                                 //{

@@ -45,7 +45,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                                     updatedClient.BalanceLeft = updatedClient.SettledBalance - updatedClient.TotalMargin;
 
                                                                     String message = " NOP per client - Nopmargin, ClientBalances ClientID: " + updatedClient.ClientID;
-                                                                    AppendLog(message);
+                                                                    LogInfo(message);
 
                                                                     clientBalances.AddOrUpdate(updatedClient);
 

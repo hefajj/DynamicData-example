@@ -36,7 +36,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                              {
                                  foreach (var item in c)
                                  {
-                                     AppendLog("Check if we can clos POSITION check - BALANCE IS BELOW 50 for client: " + item.Current.ClientID + " item.Current.BalanceLeft:" + item.Current.BalanceLeft + " reson" + item.Reason.ToString());
+                                     LogInfo("Check if we can clos POSITION check - BALANCE IS BELOW 50 for client: " + item.Current.ClientID + " item.Current.BalanceLeft:" + item.Current.BalanceLeft + " reson" + item.Reason.ToString());
 
                                      var positionSToclose = curPairPositionPerClient.Items.Where(r => (r.ClientId == item.Current.ClientID && r.Amount1 != 0)).OrderByDescending(d => ConvertToBaseCcy(d.Amount1, d.Cur1));//;
 
@@ -44,7 +44,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                      {
                                          var positionToclose = positionSToclose.First();
 
-                                         AppendLog("CLOSE THE POSITION - " + positionToclose);
+                                         LogInfo("CLOSE THE POSITION - " + positionToclose);
 
                                          double lastquote = 0;
                                          if (positionToclose.Amount1 > 0)

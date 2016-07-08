@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using DynamicData;
+using System.Reactive.Linq;
+using System.Reactive;
 
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
@@ -72,23 +74,23 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                                              AmountInBase = ConvertToBaseCcy(g.Sum(a => a.Amount), g.Key),
                                                                          }));
 
+                                                        //foreach (var item in CurQuery)
+                                                        //{
+                                                        //    LogInfo("curPositionPerClient.AddOrUpdate:|" + item);
+                                                        //    curPositionPerClient.AddOrUpdate(item);
+                                                        //}
 
+                                                        curPositionPerClient
+                                                            .Edit(updater =>
+                                                            {
+                                                                foreach (var item in CurQuery)
+                                                                {
+                                                                    LogInfo("curPositionPerClient.AddOrUpdate:|" + item);
+                                                                    updater.AddOrUpdate(item);
+                                                                }
+                                                            }
+                                                            );
 
-                                                        //AddOrUpdate_curPositionPerClient(CurQuery);
-                                                        curPositionPerClient.AddOrUpdate(CurQuery);
-
-
-                                                        //curPositionPerClient
-                                                        //    .Edit(updater =>
-                                                        //    {
-                                                        //        foreach (var item in CurQuery)
-                                                        //        {
-                                                        //            AppendLog(item.ToString());
-                                                        //            updater.AddOrUpdate(item);
-                                                        //        }
-                                                        //    }
-                                                        //    );
-                                                        
                                                         return CurQuery;
                                                     }
                                                     )

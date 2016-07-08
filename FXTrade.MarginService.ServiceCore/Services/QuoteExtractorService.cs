@@ -41,7 +41,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                     Cur2 = pairs[i].Substring(pairs[i].Length - 3, 3),
                 };
                 ////Console.WriteLine(newquote);
-                AppendLog(newquote.ToString());
+                LogInfo(newquote.ToString());
                 quotes.AddOrUpdate(newquote);
             }
 
@@ -69,7 +69,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                     Cur2 = pair.Substring(pair.Length - 3, 3)
                 };
                 ////Console.WriteLine(newquote);
-                AppendLog(newquote.ToString());
+                LogInfo(newquote.ToString());
                 quotes.AddOrUpdate(newquote);
 
                 var currentprice = Math.Round(rand.NextDouble(), 5);
@@ -110,7 +110,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                     TradeIdnum = TradeIdnum + 1;
                     string printtext = newtrade.ToString();
 
-                    AppendLog(printtext);
+                    LogInfo(printtext);
                     AddMyTrade(newtrade);
 
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using DynamicData;
 using FXTrade.MarginService.BLL.Models;
+using System.Reactive;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
@@ -32,7 +33,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                            {
                                foreach (var item in c)
                                {
-                                   AppendLog(item.Reason.ToString() + "|" + item.Current.ToString());
+                                   LogInfo(item.Reason.ToString() + "|" + item.Current.ToString());
                                }
                            }
                    );
@@ -49,7 +50,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                            {
                                foreach (var item in c)
                                {
-                                   AppendLog(item.Reason.ToString() + "|" + item.Current.ToString());
+                                   LogInfo(item.Reason.ToString() + "|" + item.Current.ToString());
                                }
                            }
                    );
@@ -66,7 +67,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                            {
                                foreach (var item in c)
                                {
-                                   AppendLog(item.Reason.ToString() + "|" + item.Current.ToString());
+                                   LogInfo(item.Reason.ToString() + "|" + item.Current.ToString());
                                }
                            }
                    );
@@ -84,7 +85,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                            {
                                foreach (var item in c)
                                {
-                                   AppendLog(item.Reason.ToString() + "|" + item.Current.ToString());
+                                   LogInfo(item.Reason.ToString() + "|" + item.Current.ToString());
                                }
                            }
                    );

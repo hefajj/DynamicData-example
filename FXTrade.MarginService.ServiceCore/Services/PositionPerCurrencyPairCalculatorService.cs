@@ -64,8 +64,8 @@ namespace FXTrade.MarginService.ServiceCore.Services
 
 
                                                      curPairPositionPerClient.AddOrUpdate(pairpos);
-                                                    //Console.WriteLine(pairpos); 
-                                                    AppendLog("positionpercustomer- " + pairpos.ToString());
+                                                     //Console.WriteLine(pairpos); 
+                                                     LogInfo("positionpercustomer- " + pairpos.ToString());
                                                      return pairpos;
                                                  }
                                                  )

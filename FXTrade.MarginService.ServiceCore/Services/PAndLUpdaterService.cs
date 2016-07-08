@@ -49,7 +49,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                              updatedClient.BalanceLeft = updatedClient.SettledBalance + ProfilLoss - updatedClient.InicialMargin;
 
                                                              String message = "balanceupdate - P&L per client update, ClientBalances ClientID: " + updatedClient.ClientID;
-                                                             AppendLog(message);
+                                                             LogInfo(message);
 
                                                              clientBalances.AddOrUpdate(updatedClient);
                                                              return ProfilLoss;

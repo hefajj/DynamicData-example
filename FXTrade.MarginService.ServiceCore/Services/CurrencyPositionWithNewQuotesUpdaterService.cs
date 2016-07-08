@@ -53,13 +53,13 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                 latestAskPrice = newquote.Current.Ask;
 
                                                 curPositionPerClient
-                                                    .BatchUpdate(updater =>
+                                                    .Edit(updater =>
                                                     {
                                                         foreach (var item in groupedData.Cache.Items)
                                                         {
                                                             var trade = item;
                                                             trade.AmountInBase = trade.Amount * latestAskPrice;
-                                                            AppendLog("CurPositionPerClient.BatchUpdate: " + trade);
+                                                            LogInfo("CurPositionPerClient.BatchUpdate: " + trade);
 
                                                             updater.AddOrUpdate(trade);
                                                         }
