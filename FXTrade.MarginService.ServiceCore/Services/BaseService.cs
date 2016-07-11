@@ -1,7 +1,7 @@
 ﻿using DynamicData;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 using log4net;
-using log4net.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +11,9 @@ namespace FXTrade.MarginService.ServiceCore.Services
 {
     public abstract class BaseService : IDisposable
     {
-        
-        private log4net.ILog logger;
-        private static object myTrades_Lock = new object();
-        
-        private static object curPairPositionPerClient_Lock = new object();
-        private static long trade_counter = 0;
 
+        private log4net.ILog logger;
+        protected ISubscriberCommunicator communicator;
         protected IDisposable cleanUp;
 
         #region Observed Collections
@@ -27,15 +23,21 @@ namespace FXTrade.MarginService.ServiceCore.Services
         protected ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient;
         protected ISourceCache<CurPositionPerClient, string> curPositionPerClient;
         #endregion
-       // protected object curPositionPerClient_Lock;
+
+        #region Static Fields
+        private static object myTradesLock = new object();
+        private static long tradeCounter = 0;
+        #endregion
+
+
 
 
         public BaseService(ISourceCache<Trade, long> myTrades,
                            ISourceCache<Quote, string> quotes,
                            ISourceCache<BalancePerClient, long> clientBalances,
                            ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient
-            //               object CurPositionPerClient_Lock
+                           ISourceCache<CurPositionPerClient, string> curPositionPerClient,
+                           ISubscriberCommunicator communicator = null
             )
         {
             this.myTrades = myTrades;
@@ -43,7 +45,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
             this.clientBalances = clientBalances;
             this.curPairPositionPerClient = curPairPositionPerClient;
             this.curPositionPerClient = curPositionPerClient;
-            //this.curPositionPerClient_Lock = CurPositionPerClient_Lock;
+            this.communicator = communicator;
             this.logger = LogManager.GetLogger("MarginTrader");
         }
         public void Dispose()
@@ -61,31 +63,16 @@ namespace FXTrade.MarginService.ServiceCore.Services
         }
 
         #region HelperMethods
-        protected void AddMyTrade(Trade mynewtrade)
+        protected void AddMyTrade(Trade myNewTrade)
         {
-            lock (myTrades_Lock)
-            {
-                trade_counter++;
-                mynewtrade.Id = trade_counter;
-                myTrades.AddOrUpdate(mynewtrade);
-            }
+            //lock (myTradesLock)
+            //{
+                tradeCounter++;
+                myNewTrade.Id = tradeCounter;
+                myTrades.AddOrUpdate(myNewTrade);
+            //}
         }
 
-        //protected void AddOrUpdate_curPositionPerClient(IEnumerable<CurPositionPerClient> newvalue)
-        //{
-        //    lock (CurPositionPerClient_Lock)
-        //    {
-        //        curPositionPerClient.AddOrUpdate(newvalue);
-        //    }
-        //}
-
-        //protected void AddOrUpdate_curPositionPerClient(CurPositionPerClient newvalue)
-        //{
-        //    lock (CurPositionPerClient_Lock)
-        //    {
-        //        curPositionPerClient.AddOrUpdate(newvalue);
-        //    }
-        //}
 
         protected double ConvertToBaseCcy(double amount, string quoteDccy)
         {

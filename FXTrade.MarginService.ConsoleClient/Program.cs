@@ -1,33 +1,37 @@
 ﻿using DynamicData;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ConsoleClient.SubscriberCommunication;
 using FXTrade.MarginService.ServiceCore.Contract;
 using FXTrade.MarginService.ServiceCore.Services;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
+using log4net.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
-using log4net.Config;
-using System.Reactive.Linq;
 
 namespace FXTrade.MarginService.ConsoleClient
 {
-
-    
-    
-
     class Program
     {
         private static ISourceCache<Quote, string> quotes;
         private static ISourceCache<Trade, long> myTrades;
+        private static ISourceCache<Trade, long> myTradesQuoteUpdate;
+
         private static ISourceCache<BalancePerClient, long> clientBalances;
         private static ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient;
+
         private static ISourceCache<CurPositionPerClient, string> curPositionPerClient;
-        private static object myTrades_Locker;
-        private static object CurPositionPerClient_Locker;
+        private static IObservableCache<CurPositionPerClient, string> curPositionPerClientCache;
+
+        private static ISourceCache<CurPositionPerClient, string> curPositionPerClientQuoteUpdate;
         
+
+        private static object myTradesLocker;
+        private static object CurPositionPerClientLocker;
+
 
         static void Main(string[] args)
         {
@@ -36,21 +40,34 @@ namespace FXTrade.MarginService.ConsoleClient
 
             quotes = new SourceCache<Quote, string>(quote => quote.Pair);
             myTrades = new SourceCache<Trade, long>(trade => trade.Id);
+            myTradesQuoteUpdate = new SourceCache<Trade, long>(trade => trade.Id);
             clientBalances = new SourceCache<BalancePerClient, long>(Balance => Balance.ClientID);
             curPairPositionPerClient = new SourceCache<CurPairPositionPerClient, string>(CurPairPositionPerClient => CurPairPositionPerClient.ClientPair);
             curPositionPerClient = new SourceCache<CurPositionPerClient, string>(CurPositionPerClient => CurPositionPerClient.ClientIdCur);
-            myTrades_Locker = new object();
-            CurPositionPerClient_Locker = new object();
+            curPositionPerClientCache = curPositionPerClient.AsObservableCache();
 
-            // services Initialization
+            curPositionPerClientQuoteUpdate = new SourceCache<CurPositionPerClient, string>(CurPositionPerClient => CurPositionPerClient.ClientIdCur);
+
+
+
+            myTradesLocker = new object();
+            CurPositionPerClientLocker = new object();
+
+            // services Initialization 
+            ISubscriberCommunicator communicator = new ConsoleSubscriberCommunicator();
+
+            ISubscribeTradesService tradesSubscriber = new SubscribeTradesService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, communicator);
+            tradesSubscriber.SubscribeMyTrades();
+
             IQuoteExtractorService quoteExtractor = new QuoteExtractorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
             new Thread(quoteExtractor.ExtractData).Start();
 
-            ILogPrinterService logPrinterService = new LogPrinterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            ILogPrinterService logPrinterService = new LogPrinterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, curPositionPerClientCache, myTradesQuoteUpdate);
             logPrinterService.PrintClientBalances();
             logPrinterService.PrintcurPairPositionPerClient();
             logPrinterService.PrintmyTrades();
-            logPrinterService.PrintCurPositionPerClient();
+            logPrinterService.PrintcurPositionPerClientCache();
+            logPrinterService.PrintmyTradesQuoteUpdate();
 
             IStopOutExecutorService stopOutExecutorService = new StopOutExecutorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
             stopOutExecutorService.ManageStopOuts();
@@ -67,10 +84,10 @@ namespace FXTrade.MarginService.ConsoleClient
             IPAndLUpdaterService pAndLUpdaterService = new PAndLUpdaterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
             pAndLUpdaterService.UpdatePandLPerClient();
 
-            ICurrencyPositionPerClientUpdaterService currencyPositionPerClientUpdaterService = new CurrencyPositionPerClientUpdaterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            ICurrencyPositionPerClientUpdaterService currencyPositionPerClientUpdaterService = new CurrencyPositionPerClientUpdaterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, curPositionPerClientQuoteUpdate, curPositionPerClientCache);
             currencyPositionPerClientUpdaterService.UpdateAllCurrenciesPositions();
 
-            IUpdateTradesService updateTradesService = new UpdateTradesService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IUpdateTradesService updateTradesService = new UpdateTradesService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, myTradesQuoteUpdate);
             updateTradesService.UpdateAllTradesAndQuotes();
         }
     }

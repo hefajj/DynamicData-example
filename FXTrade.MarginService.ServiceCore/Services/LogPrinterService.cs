@@ -11,14 +11,20 @@ namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class LogPrinterService : BaseService, ILogPrinterService
     {
+        private IObservableCache<CurPositionPerClient, string> curPositionPerClientCache;
+        private ISourceCache<Trade, long> myTradesQuoteUpdate;
+
         public LogPrinterService(ISourceCache<Trade, long> myTrades,
                            ISourceCache<Quote, string> quotes,
                            ISourceCache<BalancePerClient, long> clientBalances,
                            ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
+                           ISourceCache<CurPositionPerClient, string> curPositionPerClient,
+                           IObservableCache<CurPositionPerClient, string> curPositionPerClientCache,
+                           ISourceCache<Trade, long> myTradesQuoteUpdate)
             : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
         {
-
+            this.curPositionPerClientCache = curPositionPerClientCache;
+            this.myTradesQuoteUpdate = myTradesQuoteUpdate;
         }
 
 
@@ -57,17 +63,17 @@ namespace FXTrade.MarginService.ServiceCore.Services
         }
 
         /// <summary>
-        ///  print changed CurPositionPerClient
+        ///  print changed curPositionPerClientCache
         /// </summary>
-        public void PrintCurPositionPerClient()
+        public void PrintcurPositionPerClientCache()
         {
-            curPositionPerClient.Connect()
+            curPositionPerClientCache.Connect()
                    .Subscribe(
                            c =>
                            {
                                foreach (var item in c)
                                {
-                                   LogInfo(item.Reason.ToString() + "|" + item.Current.ToString());
+                                   LogInfo("curPositionPerClientCache:|"+item.Reason.ToString() + " | " + item.Current.ToString());
                                }
                            }
                    );
@@ -86,6 +92,23 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                foreach (var item in c)
                                {
                                    LogInfo(item.Reason.ToString() + "|" + item.Current.ToString());
+                               }
+                           }
+                   );
+        }
+
+        /// <summary>
+        ///  print changed myTrades
+        /// </summary>
+        public void PrintmyTradesQuoteUpdate()
+        {
+            myTradesQuoteUpdate.Connect()
+                   .Subscribe(
+                           c =>
+                           {
+                               foreach (var item in c)
+                               {
+                                   LogInfo("PrintmyTradesQuoteUpdate:|"+item.Reason.ToString() + " | " + item.Current.ToString());
                                }
                            }
                    );

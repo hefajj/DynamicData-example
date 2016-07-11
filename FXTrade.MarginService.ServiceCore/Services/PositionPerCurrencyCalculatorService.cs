@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using DynamicData;
+using DynamicData.Binding;
+using DynamicData.Controllers;
 using System.Reactive.Linq;
 using System.Reactive;
 
@@ -31,7 +33,17 @@ namespace FXTrade.MarginService.ServiceCore.Services
         /// </summary>
         public void CalculatePosistionPerCurrencyPerCustomer()
         {
-           cleanUp = myTrades.Connect(trade => (trade.Status == Status.Open || trade.Status == Status.Pending))
+
+            //var shared = myTrades.Connect(trade => trade.Status == Status.Open);
+            //var shared2 = myTrades.Connect(trade => trade.Status == Status.Pending);
+            //var customers = shared.DistinctValues(trade => trade.Pair);
+            ////distinct list of currency pairs
+            //var currencypairs = shared.DistinctValues(trade => trade.Status);
+
+            //var dsds = shared.Except(shared2).Subscribe();
+            
+            cleanUp = myTrades.Connect(trade => (trade.Status == Status.Open || trade.Status == Status.Pending))
+                
                     .WhereReasonsAre(ChangeReason.Add, ChangeReason.Remove)
                     .Group(t => t.ClientId)
                     .SubscribeMany(groupedData =>
@@ -74,22 +86,27 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                                              AmountInBase = ConvertToBaseCcy(g.Sum(a => a.Amount), g.Key),
                                                                          }));
 
-                                                        //foreach (var item in CurQuery)
-                                                        //{
-                                                        //    LogInfo("curPositionPerClient.AddOrUpdate:|" + item);
-                                                        //    curPositionPerClient.AddOrUpdate(item);
-                                                        //}
 
-                                                        curPositionPerClient
-                                                            .Edit(updater =>
-                                                            {
-                                                                foreach (var item in CurQuery)
-                                                                {
-                                                                    LogInfo("curPositionPerClient.AddOrUpdate:|" + item);
-                                                                    updater.AddOrUpdate(item);
-                                                                }
-                                                            }
-                                                            );
+                                                        //curPositionPerClient.AddOrUpdate(CurQuery);
+
+                                                        foreach (var item in CurQuery)
+                                                        {
+                                                            LogInfo("curPositionPerClient.AddOrUpdate:|" + item);
+                                                            curPositionPerClient.AddOrUpdate(item);
+                                                        }
+
+
+                                                        //curPositionPerClient
+                                                        //    .Edit(updater =>
+                                                        //    {
+                                                        //        foreach (var item in CurQuery)
+                                                        //        {
+                                                        //            LogInfo("curPositionPerClient.AddOrUpdate:|" + item);
+                                                        //            updater.AddOrUpdate(item);
+                                                        //        }
+                                                        //    }
+                                                        //    );
+
 
                                                         return CurQuery;
                                                     }

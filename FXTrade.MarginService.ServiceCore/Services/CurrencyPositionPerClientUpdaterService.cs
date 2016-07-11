@@ -14,14 +14,21 @@ namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class CurrencyPositionPerClientUpdaterService : BaseService, ICurrencyPositionPerClientUpdaterService
     {
+        private ISourceCache<CurPositionPerClient, string> curPositionPerClientQuoteUpdate;
+        private IObservableCache<CurPositionPerClient, string> curPositionPerClientCache;
+
         public CurrencyPositionPerClientUpdaterService(ISourceCache<Trade, long> myTrades,
                            ISourceCache<Quote, string> quotes,
                            ISourceCache<BalancePerClient, long> clientBalances,
                            ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
+                           ISourceCache<CurPositionPerClient, string> curPositionPerClient,
+                           ISourceCache<CurPositionPerClient, string> curPositionPerClientQuoteUpdate,
+                           IObservableCache<CurPositionPerClient, string> curPositionPerClientCache
+                           )
+            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient )
         {
-
+            this.curPositionPerClientQuoteUpdate = curPositionPerClientQuoteUpdate;
+            this.curPositionPerClientCache = curPositionPerClientCache;
         }
 
 
@@ -30,61 +37,51 @@ namespace FXTrade.MarginService.ServiceCore.Services
         /// </summary>
         public void UpdateAllCurrenciesPositions()
         {
-           var clientBalancesLocker = new object();
+            var clientBalancesLocker = new object();
 
-           cleanUp =  curPositionPerClient.Connect(q => q.Cur != "EUR")
-                    .Group(t => t.Cur)
-                    //.Throttle(TimeSpan.FromMilliseconds(250))
-                    .SubscribeMany(
-                        groupedData =>
-                        {
+            cleanUp = curPositionPerClientCache.Connect(q => q.Cur != "EUR")
+                     .Group(t => t.Cur)
+                     //.Throttle(TimeSpan.FromMilliseconds(250))
+                     .SubscribeMany(
+                         groupedData =>
+                         {
 
-                            var locker = new object();
-                            double latestAskPrice = 0;
+                             var locker = new object();
+                             double latestAskPrice = 0;
 
                             //subscribe to price and recalculate CurPositionPerClient in account currenty
                             //var priceHasChanged = quotes.Connect(q => q.Cur2 == groupedData.Key)
                             var priceHasChanged = quotes.Connect(q => (q.Pair == "EUR/" + groupedData.Key))
-                                       .Synchronize(clientBalancesLocker)
-                                        //.Throttle(TimeSpan.FromMilliseconds(250))
-                                        .Subscribe(
-                                        price =>
-                                        {
-                                            foreach (var newquote in price)
-                                            {
-                                                latestAskPrice = newquote.Current.Ask;
+                                        .Synchronize(clientBalancesLocker)
+                                         //.Throttle(TimeSpan.FromMilliseconds(250))
+                                         .Subscribe(
+                                         price =>
+                                         {
+                                             
+                                             foreach (var newquote in price)
+                                             {
+                                                 latestAskPrice = newquote.Current.Ask;
 
-                                                foreach (var item in groupedData.Cache.Items)
-                                                {
-                                                    LogInfo("SetAmountInBase before:|" + item);
-                                                    //TODO: Update Amount in Base position someplace else to not update main ISourceList
+                                                 foreach (var item in groupedData.Cache.Items)
+                                                 {
+                                                     //LogInfo("SetAmountInBase before:|" + item);
+                                                     var changed = item;
 
-                                                    //item.SetAmountInBase(latestAskPrice);
-                                                    LogInfo("SetAmountInBase after:|" + item);
+                                                     changed.SetAmountInBase(latestAskPrice);
 
-                                                    //item.AmountInBase = item.Amount * latestAskPrice;
-                                                    //AddOrUpdate_curPositionPerClient(item);
+                                                     curPositionPerClientQuoteUpdate.AddOrUpdate(changed);
+                                                     //LogInfo("SetAmountInBase after:|" + item);
                                                 }
 
-                                                //curPositionPerClient.Edit(updater =>
-                                                //{
-
-                                                //    foreach (var item in groupedData.Cache.Items)
-                                                //    {
-                                                //        item.AmountInBase = item.Amount * latestAskPrice;
-                                                //        //updater.AddOrUpdate(item);
-                                                //    }
-                                                //});
-
                                             }
-                                        }
-                                    );
+                                         }
+                                     );
 
 
-                            return new CompositeDisposable(priceHasChanged);
-                        }
-                        )
-                    .Subscribe();
+                             return new CompositeDisposable(priceHasChanged);
+                         }
+                         )
+                     .Subscribe();
         }
     }
 }

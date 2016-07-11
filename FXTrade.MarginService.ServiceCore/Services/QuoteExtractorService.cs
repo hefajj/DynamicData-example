@@ -104,7 +104,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                 }
 
 
-                if (TradeIdnum < 20)
+                if (TradeIdnum < 20000)
                 {
 
                     TradeIdnum = TradeIdnum + 1;
@@ -115,7 +115,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
 
 
                 }
-                Thread.Sleep(500);
+                Thread.Sleep(5);
             }
         }
     }

@@ -29,25 +29,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'CIB UAT|AnyCPU'">
+    <OutputPath>bin\CIB UAT\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DynamicData, Version=4.7.1.1153, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicData.4.7.1.1153\lib\net45\DynamicData.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="DynamicData.Plinq, Version=4.7.1.1153, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicData.Plinq.4.7.1.1153\lib\net45\DynamicData.Plinq.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="DynamicData.ReactiveUI, Version=2.4.0.2008, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicData.ReactiveUI.2.4.0.2008\lib\portable-net45+winrt45+wp8+wpa81\DynamicData.ReactiveUI.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ReactiveUI, Version=6.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\reactiveui-core.6.5.0\lib\Net45\ReactiveUI.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Splat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Splat.1.0.0\lib\Net45\Splat.dll</HintPath>
+    <Reference Include="DynamicData, Version=4.7.5.1166, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicData.4.7.5.1166-beta\lib\net45\DynamicData.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -64,21 +57,12 @@
       <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Reactive.Windows.Threading, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-XAML.2.2.5\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\BalancePerClient.cs" />

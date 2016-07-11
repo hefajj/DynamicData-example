@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reactive;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
@@ -11,7 +10,8 @@ namespace FXTrade.MarginService.ServiceCore.Contract
     {
         void PrintClientBalances();
         void PrintcurPairPositionPerClient();
-        void PrintCurPositionPerClient();
+        void PrintcurPositionPerClientCache();
         void PrintmyTrades();
+        void PrintmyTradesQuoteUpdate();
     }
 }

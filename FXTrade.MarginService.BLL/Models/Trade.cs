@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reactive.Subjects;
 
 namespace FXTrade.MarginService.BLL.Models
 {
     public class Trade
     {
+        private readonly ISubject<double> _TradeChangedSubject = new ReplaySubject<double>(1);
+
         public long Id { get; set; }
         public string Pair { get; set; }
         public string Cur1 { get; set; }
@@ -25,5 +28,6 @@ namespace FXTrade.MarginService.BLL.Models
             return string.Format("Trade:|Id|{0}|Client|{1}|Pair|{4}|Amount1|{5}|Amount2|{8}|Status|{7}|Open|{2}|Current|{3}|P&L|{6}|Cur1|{9}|Cur2|{10}",
                                    Id, ClientId, OpenPrice, CurrentPrice, Pair, Amount1, ProfitLoss, Status, Amount2, Cur1, Cur2);
         }
+
     }
 }
