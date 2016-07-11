@@ -67,9 +67,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                         trade.ProfitLoss = ConvertToBaseCcy(Profitloss_in_quoted, trade.Cur2);
 
                                                         myTradesQuoteUpdate.AddOrUpdate(trade);
-
-                                                        //_marketPriceChangedSubject.OnNext(marketPrice);
-                                                        //updater.AddOrUpdate(trade);
+                                                        
                                                     }
                                                     //    }
                                                     //);

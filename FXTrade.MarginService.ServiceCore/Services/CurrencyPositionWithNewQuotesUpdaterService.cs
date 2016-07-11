@@ -29,51 +29,8 @@ namespace FXTrade.MarginService.ServiceCore.Services
         /// </summary>
         public void UpdateCurrencyPositionWithNewQuotes()
         {
-            var clientBalancesLocker = new object();
-            cleanUp = curPositionPerClient.Connect(q => q.Cur != "EUR")
-                    .Group(t => t.Cur)
-                    //.Throttle(TimeSpan.FromMilliseconds(250))
-                    .SubscribeMany(
-                        groupedData =>
-                        {
+            
 
-                            var locker = new object();
-
-                            double latestAskPrice = 0;
-
-                            //subscribe to price and recalculate CurPositionPerClient in account currenty
-                            var priceHasChanged = quotes.Connect(q => q.Cur2 == groupedData.Key)
-                                        .Synchronize(clientBalancesLocker)
-                                        //.Throttle(TimeSpan.FromMilliseconds(250))
-                                        .Subscribe(
-                                        price =>
-                                        {
-                                            foreach (var newquote in price)
-                                            {
-                                                latestAskPrice = newquote.Current.Ask;
-
-                                                curPositionPerClient
-                                                    .Edit(updater =>
-                                                    {
-                                                        foreach (var item in groupedData.Cache.Items)
-                                                        {
-                                                            var trade = item;
-                                                            trade.AmountInBase = trade.Amount * latestAskPrice;
-                                                            LogInfo("CurPositionPerClient.BatchUpdate: " + trade);
-
-                                                            updater.AddOrUpdate(trade);
-                                                        }
-                                                    }
-                                                    );
-                                            }
-                                        }
-                                    );
-
-
-                            return new CompositeDisposable(priceHasChanged);
-                        }
-                        )
-                    .Subscribe();
         }
     }
 }

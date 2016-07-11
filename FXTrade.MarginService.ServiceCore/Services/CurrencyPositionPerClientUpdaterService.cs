@@ -37,7 +37,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
         /// </summary>
         public void UpdateAllCurrenciesPositions()
         {
-            var clientBalancesLocker = new object();
+            //var clientBalancesLocker = new object();
 
             cleanUp = curPositionPerClientCache.Connect(q => q.Cur != "EUR")
                      .Group(t => t.Cur)
@@ -50,9 +50,8 @@ namespace FXTrade.MarginService.ServiceCore.Services
                              double latestAskPrice = 0;
 
                             //subscribe to price and recalculate CurPositionPerClient in account currenty
-                            //var priceHasChanged = quotes.Connect(q => q.Cur2 == groupedData.Key)
                             var priceHasChanged = quotes.Connect(q => (q.Pair == "EUR/" + groupedData.Key))
-                                        .Synchronize(clientBalancesLocker)
+                                        .Synchronize(locker)
                                          //.Throttle(TimeSpan.FromMilliseconds(250))
                                          .Subscribe(
                                          price =>
@@ -76,6 +75,26 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                             }
                                          }
                                      );
+
+                             //connect to data changes and update with the latest price
+                             var dataHasChanged = groupedData.Cache.Connect()
+                                 //.WhereReasonsAre(ChangeReason.Add, ChangeReason.Update)
+                                 .Synchronize(locker)
+                                 .Subscribe(changes =>
+                                 {
+
+                                     foreach (var item in changes)
+                                     {
+                                         var changed = item.Current;
+
+                                         changed.SetAmountInBase(latestAskPrice);
+
+                                         curPositionPerClientQuoteUpdate.AddOrUpdate(changed);
+                                     }
+
+
+                                 }
+                                 );
 
 
                              return new CompositeDisposable(priceHasChanged);
