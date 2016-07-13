@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-    public interface IMarketDataService
+    public interface IMarketDataService : IBaseService
     {
         IObservable<Quote> Watch(string currencyPair);
     }

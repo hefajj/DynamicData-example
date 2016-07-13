@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-   public interface ILogPrinterService
+   public interface ILogPrinterService: IBaseService
     {
         void PrintClientBalances();
         void PrintcurPairPositionPerClient();
         void PrintcurPositionPerClientCache();
         void PrintmyTrades();
         void PrintmyTradesQuoteUpdate();
+        void PrintcurPositionPerClientQuoteUpdate();
     }
 }

@@ -5,7 +5,7 @@ using System.Web;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-    public interface IUpdateTradesService
+    public interface IUpdateTradesService : IBaseService
     {
         void UpdateAllTradesAndQuotes();
     }

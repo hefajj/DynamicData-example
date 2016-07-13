@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-   public interface IPAndLUpdaterService
+   public interface IPAndLUpdaterService : IBaseService
     {
         void UpdatePandLPerClient();
     }

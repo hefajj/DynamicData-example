@@ -17,16 +17,18 @@ namespace FXTrade.MarginService.ServiceCore.Services
         private ISourceCache<CurPositionPerClient, string> curPositionPerClientQuoteUpdate;
         private IObservableCache<CurPositionPerClient, string> curPositionPerClientCache;
 
-        public CurrencyPositionPerClientUpdaterService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClientQuoteUpdate,
-                           IObservableCache<CurPositionPerClient, string> curPositionPerClientCache
-                           )
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient )
+        private ISourceCache<Quote, string> quotes;
+        private ISourceCache<CurPositionPerClient, string> curPositionPerClient;
+
+        public CurrencyPositionPerClientUpdaterService(ISourceCache<Quote, string> quotes,                          
+                                                       ISourceCache<CurPositionPerClient, string> curPositionPerClient,
+                                                        ISourceCache<CurPositionPerClient, string> curPositionPerClientQuoteUpdate,
+                                                        IObservableCache<CurPositionPerClient, string> curPositionPerClientCache
+                                                       )
+            : base()
         {
+            this.quotes = quotes;
+            this.curPositionPerClient = curPositionPerClient;
             this.curPositionPerClientQuoteUpdate = curPositionPerClientQuoteUpdate;
             this.curPositionPerClientCache = curPositionPerClientCache;
         }
@@ -61,6 +63,21 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                              {
                                                  latestAskPrice = newquote.Current.Ask;
 
+                                                 //curPositionPerClientQuoteUpdate.Edit(Editer =>
+                                                 //{
+                                                 //    var changed = groupedData.Cache.Items.ToArray();
+                                                 //    foreach (var item in changed)
+                                                 //    {
+                                                 //        LogInfo("SetAmountInBase before:|" + item);
+                                                 //        var changednow = item;
+
+                                                 //        changednow.SetAmountInBase(latestAskPrice);
+
+                                                 //        Editer.AddOrUpdate(changednow);
+                                                 //        LogInfo("SetAmountInBase after:|" + item);
+                                                 //    }
+                                                 //});
+
                                                  foreach (var item in groupedData.Cache.Items)
                                                  {
                                                      //LogInfo("SetAmountInBase before:|" + item);
@@ -70,9 +87,9 @@ namespace FXTrade.MarginService.ServiceCore.Services
 
                                                      curPositionPerClientQuoteUpdate.AddOrUpdate(changed);
                                                      //LogInfo("SetAmountInBase after:|" + item);
-                                                }
+                                                 }
 
-                                            }
+                                             }
                                          }
                                      );
 

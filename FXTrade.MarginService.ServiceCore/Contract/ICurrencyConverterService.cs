@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-   public interface ICurrencyPositionPerClientUpdaterService: IBaseService
+    public interface ICurrencyConverterService: IBaseService
     {
-        void UpdateAllCurrenciesPositions();
+        double ConvertToBaseCcy(double amount, string quoteDccy);
     }
 }

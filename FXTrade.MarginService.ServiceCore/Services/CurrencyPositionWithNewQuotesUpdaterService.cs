@@ -8,19 +8,23 @@ using DynamicData;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class CurrencyPositionWithNewQuotesUpdaterService : BaseService, ICurrencyPositionWithNewQuotesUpdaterService
     {
-        public CurrencyPositionWithNewQuotesUpdaterService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
-        {
+        private ISourceCache<CurPositionPerClient, string> curPositionPerClient;
+        private ISourceCache<Quote, string> quotes;
 
+
+        public CurrencyPositionWithNewQuotesUpdaterService(ISourceCache<Quote, string> quotes,                           
+                           ISourceCache<CurPositionPerClient, string> curPositionPerClient, 
+                           ISubscriberCommunicator communicator= null)
+            : base(communicator)
+        {
+            this.curPositionPerClient = curPositionPerClient;
+            this.quotes = quotes;
         }
 
 

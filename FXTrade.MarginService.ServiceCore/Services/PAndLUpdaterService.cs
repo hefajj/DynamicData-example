@@ -8,19 +8,22 @@ using DynamicData;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class PAndLUpdaterService : BaseService, IPAndLUpdaterService
     {
-        public PAndLUpdaterService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
-        {
+        private ISourceCache<Trade, long> myTrades;
+        private ISourceCache<BalancePerClient, long> clientBalances;
 
+        public PAndLUpdaterService(ISourceCache<Trade, long> myTrades,
+                                   ISourceCache<BalancePerClient, long> clientBalances,
+                                   ISubscriberCommunicator communicator = null)
+            : base(communicator)
+        {
+            this.myTrades = myTrades;
+            this.clientBalances = clientBalances;
         }
 
         /// <summary>

@@ -9,6 +9,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
@@ -17,17 +18,23 @@ namespace FXTrade.MarginService.ServiceCore.Services
     /// </summary>
     public class UpdateTradesService : BaseService, IUpdateTradesService
     {
+        private ISourceCache<Trade, long> myTrades;
+        private ISourceCache<Quote, string> quotes;
+        private ICurrencyConverterService currencyConverter;
+
+
         private ISourceCache<Trade, long> myTradesQuoteUpdate;
 
         public UpdateTradesService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient,
-                           ISourceCache<Trade, long> myTradesQuoteUpdate
-                        )
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
+                                   ISourceCache<Quote, string> quotes,
+                                   ICurrencyConverterService currencyConverter,
+                                   ISourceCache<Trade, long> myTradesQuoteUpdate,
+                                   ISubscriberCommunicator communicator = null)
+            : base(communicator)
         {
+            this.myTrades = myTrades;
+            this.quotes = quotes;
+            this.currencyConverter = currencyConverter;
             this.myTradesQuoteUpdate = myTradesQuoteUpdate;
         }
 
@@ -64,7 +71,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                             trade.CurrentPrice = latestAskPrice;
 
                                                         var Profitloss_in_quoted = (trade.OpenPrice - trade.CurrentPrice) * trade.Amount1; // Update P&L on the trade
-                                                        trade.ProfitLoss = ConvertToBaseCcy(Profitloss_in_quoted, trade.Cur2);
+                                                        trade.ProfitLoss = currencyConverter.ConvertToBaseCcy(Profitloss_in_quoted, trade.Cur2);
 
                                                         myTradesQuoteUpdate.AddOrUpdate(trade);
                                                         
@@ -91,7 +98,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                 trade.CurrentPrice = latestAskPrice;
 
                                             var Profitloss_in_quoted = (trade.OpenPrice - trade.CurrentPrice) * trade.Amount1; // Update P&L on the trade
-                                            trade.ProfitLoss = ConvertToBaseCcy(Profitloss_in_quoted, trade.Cur2);
+                                            trade.ProfitLoss =currencyConverter.ConvertToBaseCcy(Profitloss_in_quoted, trade.Cur2);
 
                                             myTradesQuoteUpdate.AddOrUpdate(trade);
                                         }
@@ -102,7 +109,7 @@ namespace FXTrade.MarginService.ServiceCore.Services
 
 
                                 return new CompositeDisposable(priceHasChanged);
-                            
+
                             }
                         )
                     .Subscribe();

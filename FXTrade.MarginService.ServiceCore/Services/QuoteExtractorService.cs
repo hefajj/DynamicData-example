@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using FXTrade.MarginService.BLL.Models;
 using FXTrade.MarginService.ServiceCore.Contract;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,15 +12,22 @@ namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class QuoteExtractorService : BaseService, IQuoteExtractorService
     {
+        private ISourceCache<Trade, long> myTrades;
+        private ISourceCache<Quote, string> quotes;
+        private ISourceCache<BalancePerClient, long> clientBalances;
+        private ITradesModifierService tradesModifierService;
 
         public QuoteExtractorService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
+                                     ISourceCache<Quote, string> quotes,
+                                     ISourceCache<BalancePerClient, long> clientBalances,
+                                     ITradesModifierService tradesModifierService,
+                                     ISubscriberCommunicator communicator = null)
+            : base(communicator)
         {
-
+            this.myTrades = myTrades;
+            this.quotes = quotes;
+            this.clientBalances = clientBalances;
+            this.tradesModifierService = tradesModifierService;
         }
         public void ExtractData()
         {
@@ -111,11 +119,11 @@ namespace FXTrade.MarginService.ServiceCore.Services
                     string printtext = newtrade.ToString();
 
                     LogInfo(printtext);
-                    AddMyTrade(newtrade);
+                    tradesModifierService.AddMyTrade(newtrade);
 
 
                 }
-                Thread.Sleep(5);
+                Thread.Sleep(10);
             }
         }
     }

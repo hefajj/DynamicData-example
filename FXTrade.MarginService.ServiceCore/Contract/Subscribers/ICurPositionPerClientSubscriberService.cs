@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-   public interface IPositionPerCurrencyCalculatorService : IBaseService
+   public interface ICurPositionPerClientSubscriberService: IBaseService
     {
-        void CalculatePosistionPerCurrencyPerCustomer();
-       
+        ReadOnlyObservableCollection<CurPositionPerClient> CurPositionPerClientReadOnlyCollection { get; }
+        void SubscribeCurPositionsPerClient();
+
+
     }
 }

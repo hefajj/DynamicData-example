@@ -15,6 +15,16 @@ namespace FXTrade.MarginService.BLL.Models
         public double TotalMargin { get; set; } // InicialMargin - ProfilLoss
         public double BalanceLeft { get; set; } //SettledBalance - TotalMargin 
 
+        public BalancePerClient()
+        {
+            this.ClientID = 0;
+            this.SettledBalance = 0;
+            this.InicialMargin = 0;
+            this.ProfilLoss = 0;
+            this.TotalMargin = 0;
+            this.BalanceLeft = 0;
+        }
+
         public BalancePerClient(long clientID, double settledBalance, double inicialMargin, double profilLossMargin)
         {
             this.ClientID = clientID;

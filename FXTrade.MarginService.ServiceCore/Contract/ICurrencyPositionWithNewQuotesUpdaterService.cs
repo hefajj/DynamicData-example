@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.Contract
 {
-    interface ICurrencyPositionWithNewQuotesUpdaterService
+    interface ICurrencyPositionWithNewQuotesUpdaterService: IBaseService
     {
         void UpdateCurrencyPositionWithNewQuotes();
     }

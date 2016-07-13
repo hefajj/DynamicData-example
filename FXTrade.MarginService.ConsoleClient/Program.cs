@@ -53,42 +53,42 @@ namespace FXTrade.MarginService.ConsoleClient
             myTradesLocker = new object();
             CurPositionPerClientLocker = new object();
 
-            // services Initialization 
-            ISubscriberCommunicator communicator = new ConsoleSubscriberCommunicator();
+            // services Initialization
+            ITradesModifierService tradesModifierService = new TradesModifierService(myTrades);
+            ICurrencyConverterService currencyConverterService = new CurrencyConverterService(quotes);
 
-            ISubscribeTradesService tradesSubscriber = new SubscribeTradesService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, communicator);
-            tradesSubscriber.SubscribeMyTrades();
-
-            IQuoteExtractorService quoteExtractor = new QuoteExtractorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IQuoteExtractorService quoteExtractor = new QuoteExtractorService(myTrades, quotes, clientBalances, tradesModifierService);
             new Thread(quoteExtractor.ExtractData).Start();
 
-            ILogPrinterService logPrinterService = new LogPrinterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, curPositionPerClientCache, myTradesQuoteUpdate);
+            ILogPrinterService logPrinterService = new LogPrinterService(myTrades, clientBalances, curPairPositionPerClient, curPositionPerClient, curPositionPerClientCache, curPositionPerClientQuoteUpdate, myTradesQuoteUpdate);
             logPrinterService.PrintClientBalances();
             logPrinterService.PrintcurPairPositionPerClient();
             logPrinterService.PrintmyTrades();
             logPrinterService.PrintcurPositionPerClientCache();
             logPrinterService.PrintmyTradesQuoteUpdate();
+            logPrinterService.PrintcurPositionPerClientQuoteUpdate();
 
-            IStopOutExecutorService stopOutExecutorService = new StopOutExecutorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IStopOutExecutorService stopOutExecutorService = new StopOutExecutorService(quotes, clientBalances, curPairPositionPerClient, tradesModifierService, currencyConverterService);
             stopOutExecutorService.ManageStopOuts();
 
-            IPositionPerCurrencyPairCalculatorService positionPerCurrencyPairCalculatorService = new PositionPerCurrencyPairCalculatorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IPositionPerCurrencyPairCalculatorService positionPerCurrencyPairCalculatorService = new PositionPerCurrencyPairCalculatorService(myTrades, curPairPositionPerClient);
             positionPerCurrencyPairCalculatorService.CalculatePosistionPerCurrencyPairPerCustomer();
 
-            IPositionPerCurrencyCalculatorService positionPerCurrencyCalculatorService = new PositionPerCurrencyCalculatorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IPositionPerCurrencyCalculatorService positionPerCurrencyCalculatorService = new PositionPerCurrencyCalculatorService(myTrades, curPositionPerClient, currencyConverterService);
             positionPerCurrencyCalculatorService.CalculatePosistionPerCurrencyPerCustomer();
 
-            IMarginCalculatorService marginCalculatorService = new MarginCalculatorService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IMarginCalculatorService marginCalculatorService = new MarginCalculatorService(clientBalances, curPositionPerClient);
             marginCalculatorService.CalculateRequiredMargin();
 
-            IPAndLUpdaterService pAndLUpdaterService = new PAndLUpdaterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient);
+            IPAndLUpdaterService pAndLUpdaterService = new PAndLUpdaterService(myTrades, clientBalances);
             pAndLUpdaterService.UpdatePandLPerClient();
 
-            ICurrencyPositionPerClientUpdaterService currencyPositionPerClientUpdaterService = new CurrencyPositionPerClientUpdaterService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, curPositionPerClientQuoteUpdate, curPositionPerClientCache);
+            ICurrencyPositionPerClientUpdaterService currencyPositionPerClientUpdaterService = new CurrencyPositionPerClientUpdaterService(quotes, curPositionPerClient, curPositionPerClientQuoteUpdate, curPositionPerClientCache);
             currencyPositionPerClientUpdaterService.UpdateAllCurrenciesPositions();
 
-            IUpdateTradesService updateTradesService = new UpdateTradesService(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient, myTradesQuoteUpdate);
+            IUpdateTradesService updateTradesService = new UpdateTradesService(myTrades, quotes, currencyConverterService, myTradesQuoteUpdate);
             updateTradesService.UpdateAllTradesAndQuotes();
+            
         }
     }
 }

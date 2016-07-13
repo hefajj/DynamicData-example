@@ -7,19 +7,22 @@ using DynamicData;
 
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class MarginCalculatorService : BaseService, IMarginCalculatorService
     {
-        public MarginCalculatorService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
-        {
+        private ISourceCache<BalancePerClient, long> clientBalances;
+        private ISourceCache<CurPositionPerClient, string> curPositionPerClient;
 
+        public MarginCalculatorService(ISourceCache<BalancePerClient, long> clientBalances,
+                           ISourceCache<CurPositionPerClient, string> curPositionPerClient,
+                           ISubscriberCommunicator communicator = null)
+            : base(communicator)
+        {
+            this.clientBalances = clientBalances;
+            this.curPositionPerClient = curPositionPerClient;
         }
         /// <summary>
         /// Calculate Required margin from NOP

@@ -13,7 +13,7 @@ namespace FXTrade.MarginService.BLL.Models
 
         public string ClientIdCur { get; set; }
         public long ClientId { get; set; }
-        public string Cur;
+        public string Cur { get; set; }
         public double Amount { get; set; }
         public double AmountInBase { get; set; }
         //public double AmountLong { get; set; }

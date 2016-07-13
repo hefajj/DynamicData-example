@@ -7,12 +7,49 @@ using System.Threading.Tasks;
 
 namespace FXTrade.MarginService.ServiceCore.SubscriberCommunication
 {
+    /// <summary>
+    /// Contract provides functionality to push object to subscriber
+    /// </summary>
     public interface ISubscriberCommunicator
     {
-        void PushTradeUpdateToSubscriber(Trade trade);
+        #region Client Balanes Pushes
+        void PushClientBalanceCreate(BalancePerClient clientBalance);
 
-        void PushTradeCreateToSubscriber(Trade trade);
+        void PushClientBalanceUpdate(BalancePerClient clientBalance);
 
-        void PushTradeRemoveToSubscriber(Trade trade);
+        void PushClientBalanceRemove(BalancePerClient clientBalance);
+        #endregion
+
+        #region My Trades Pushes
+        void PushTradeUpdate(Trade trade);
+
+        void PushTradeCreate(Trade trade);
+
+        void PushTradeRemove(Trade trade);
+        #endregion
+
+        #region Quotes Pushes
+
+        void PushQuoteUpdate(Quote quote);
+
+        void PushQuoteCreate(Quote quote);
+
+        #endregion
+
+        #region CurPairPositionPerClient
+        void PushCurPairPositionPerClientCreate(CurPairPositionPerClient curPairPositionPerClient);
+
+        void PushCurPairPositionPerClientUpdate(CurPairPositionPerClient curPairPositionPerClient);
+
+        void PushCurPairPositionPerClientRemove(CurPairPositionPerClient curPairPositionPerClient);
+        #endregion
+
+        #region CurPositionPerClient
+        void PushCurPositionPerClientCreate(CurPositionPerClient curPositionPerClient);
+
+        void PushCurPositionPerClientUpdate(CurPositionPerClient curPositionPerClient);
+
+        void PushCurPositionPerClientRemove(CurPositionPerClient curPositionPerClient);
+        #endregion
     }
 }

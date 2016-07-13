@@ -11,21 +11,26 @@ using System.Reactive;
 
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
 
     public class PositionPerCurrencyCalculatorService : BaseService, IPositionPerCurrencyCalculatorService
     {
-        
-        public PositionPerCurrencyCalculatorService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient)
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
-        {
+        private ISourceCache<Trade, long> myTrades;
+        private ISourceCache<CurPositionPerClient, string> curPositionPerClient;
+        private ICurrencyConverterService currencyConverter;
 
+        public PositionPerCurrencyCalculatorService(ISourceCache<Trade, long> myTrades,
+                                                    ISourceCache<CurPositionPerClient, string> curPositionPerClient,
+                                                    ICurrencyConverterService currencyConverter,
+                                                    ISubscriberCommunicator communicator = null)
+            : base(communicator)
+        {
+            this.currencyConverter = currencyConverter;
+            this.myTrades = myTrades;
+            this.curPositionPerClient = curPositionPerClient;
         }
 
         /// <summary>
@@ -54,37 +59,37 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                     .QueryWhenChanged(query =>
                                                     {
 
-                                                        var CurUnionQuery = ((from t in query.Items
-                                                                              select new CurPositionPerClient()
-                                                                              {
+                                                         var CurUnionQuery = ((from t in query.Items
+                                                                               select new CurPositionPerClient()
+                                                                               {
 
-                                                                                  ClientIdCur = t.ClientId + "_" + t.Cur1,
-                                                                                  Cur = t.Cur1,
-                                                                                  ClientId = t.ClientId,
-                                                                                  Amount = t.Amount1,
-                                                                              }))
-                                                                          .Union(((from t in query.Items
-                                                                                   select new CurPositionPerClient()
-                                                                                   {
+                                                                                   ClientIdCur = t.ClientId + "_" + t.Cur1,
+                                                                                   Cur = t.Cur1,
+                                                                                   ClientId = t.ClientId,
+                                                                                   Amount = t.Amount1,
+                                                                               }))
+                                                                           .Union(((from t in query.Items
+                                                                                    select new CurPositionPerClient()
+                                                                                    {
 
-                                                                                       ClientIdCur = t.ClientId + "_" + t.Cur2,
-                                                                                       Cur = t.Cur2,
-                                                                                       ClientId = t.ClientId,
-                                                                                       Amount = t.Amount2,
-                                                                                   })))
-                                                                          ;
+                                                                                        ClientIdCur = t.ClientId + "_" + t.Cur2,
+                                                                                        Cur = t.Cur2,
+                                                                                        ClientId = t.ClientId,
+                                                                                        Amount = t.Amount2,
+                                                                                    })))
+                                                                           ;
 
 
-                                                        var CurQuery = ((from t in CurUnionQuery
-                                                                         group t by t.Cur into g
-                                                                         select new CurPositionPerClient()
-                                                                         {
-                                                                             ClientIdCur = g.Max(a => a.ClientId) + "_" + g.Key,
-                                                                             Cur = g.Key,
-                                                                             ClientId = g.Max(a => a.ClientId),
-                                                                             Amount = g.Sum(a => a.Amount),
-                                                                             AmountInBase = ConvertToBaseCcy(g.Sum(a => a.Amount), g.Key),
-                                                                         }));
+                                                         var CurQuery = ((from t in CurUnionQuery
+                                                                          group t by t.Cur into g
+                                                                          select new CurPositionPerClient()
+                                                                          {
+                                                                              ClientIdCur = g.Max(a => a.ClientId) + "_" + g.Key,
+                                                                              Cur = g.Key,
+                                                                              ClientId = g.Max(a => a.ClientId),
+                                                                              Amount = g.Sum(a => a.Amount),
+                                                                              AmountInBase = currencyConverter.ConvertToBaseCcy(g.Sum(a => a.Amount), g.Key),
+                                                                          }));
 
 
                                                         //curPositionPerClient.AddOrUpdate(CurQuery);
@@ -108,16 +113,16 @@ namespace FXTrade.MarginService.ServiceCore.Services
                                                         //    );
 
 
-                                                        return CurQuery;
-                                                    }
-                                                    )
-                                                    .Subscribe();
+                                                         return CurQuery;
+                                                     }
+                                                     )
+                                                     .Subscribe();
 
                         //TODO calculate required margin per client - calculation based on NOP - Update customer balances
 
                         return new CompositeDisposable(curpositionpercustomer);
-                    })
-                    .Subscribe();
+                     })
+                     .Subscribe();
         }
     }
 }

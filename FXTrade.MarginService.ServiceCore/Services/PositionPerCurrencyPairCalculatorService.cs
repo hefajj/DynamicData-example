@@ -8,20 +8,22 @@ using DynamicData;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using FXTrade.MarginService.BLL.Models;
+using FXTrade.MarginService.ServiceCore.SubscriberCommunication;
 
 namespace FXTrade.MarginService.ServiceCore.Services
 {
     public class PositionPerCurrencyPairCalculatorService : BaseService, IPositionPerCurrencyPairCalculatorService
     {
-        public PositionPerCurrencyPairCalculatorService(ISourceCache<Trade, long> myTrades,
-                           ISourceCache<Quote, string> quotes,
-                           ISourceCache<BalancePerClient, long> clientBalances,
-                           ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
-                           ISourceCache<CurPositionPerClient, string> curPositionPerClient                           
-                    )
-            : base(myTrades, quotes, clientBalances, curPairPositionPerClient, curPositionPerClient)
-        {
+        private ISourceCache<Trade, long> myTrades;
+        private ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient;
 
+        public PositionPerCurrencyPairCalculatorService(ISourceCache<Trade, long> myTrades,
+                                                        ISourceCache<CurPairPositionPerClient, string> curPairPositionPerClient,
+                                                        ISubscriberCommunicator communicator = null)
+            : base(communicator)
+        {
+            this.myTrades = myTrades;
+            this.curPairPositionPerClient = curPairPositionPerClient;
         }
         /// <summary>
         ///  Caluclate position per currency pair per customer
